@@ -5,7 +5,7 @@
 
 'use strict';
 
-const RAILWAY_URL = "https://web-production-9f27d.up.railway.app";
+const RAILWAY_URL = "https://web-production-9f27d.up.railway.app/api";
 
 /* ============================================================
    CHECK IF BACKEND IS ALIVE
