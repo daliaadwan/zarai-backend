@@ -8,15 +8,15 @@
   "theme_color": "#2ECC71",
   "orientation": "portrait",
   "icons": [
-    {
-      "src": "assets/logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/logo.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  {
+    "src": "zarai-icon-192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  },
+  {
+    "src": "zarai-icon-512.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }
+]
 }
