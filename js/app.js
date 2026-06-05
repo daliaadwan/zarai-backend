@@ -545,6 +545,21 @@ document.addEventListener('DOMContentLoaded', () => {
    
   // Connect to Railway backend
   initRailway();
+startAutoAnalysis();
+
+// Première analyse immédiate après 10 secondes
+setTimeout(async () => {
+  if (window.FB && window.FB.lastData && window.FB.lastData.SOL_01) {
+    const raw = window.FB.lastData.SOL_01;
+    await analyzeWithAI({
+      temperature:  raw.temp  || raw.temperature,
+      soil:         raw.hum_sol || raw.soil_moisture || raw.soil,
+      air_humidity: raw.hum_air || raw.humidity || raw.air_humidity,
+      light:        raw.lum  || raw.light,
+      node_id:      'SOL_01'
+    });
+  }
+}, 10000);
 
   // Animate sensor bars on load
   setTimeout(() => {
