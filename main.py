@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import httpx
 import os
@@ -22,11 +24,11 @@ class SensorData(BaseModel):
     light: float = None
     node_id: str = "SOL_01"
 
-@app.get("/")
+@app.get("/api")
 def root():
     return {"status": "ZARAI Backend is running 🌻"}
 
-@app.post("/sensors")
+@app.post("/api/sensors")
 async def receive_sensor_data(data: SensorData):
     payload = data.dict()
     async with httpx.AsyncClient() as client:
@@ -38,8 +40,11 @@ async def receive_sensor_data(data: SensorData):
         raise HTTPException(status_code=500, detail="Firebase write failed")
     return {"status": "ok", "data": payload}
 
-@app.get("/sensors/{node_id}")
+@app.get("/api/sensors/{node_id}")
 async def get_sensor_data(node_id: str):
     async with httpx.AsyncClient() as client:
         r = await client.get(f"{FIREBASE_URL}/iot/{node_id}/latest.json")
     return r.json()
+
+# Serve frontend
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
