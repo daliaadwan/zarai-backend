@@ -83,16 +83,21 @@ const NODE_TO_FIELD = {
    ⚠️ If your keys are different, change the FIELD_MAP below!
    ============================================================ */
 const FIELD_MAP = {
-  // Firebase key  →  internal name used by ZARAI
-  temperature:    "temperature",    // rename if your key differs
-  humidity:       "air_humidity",   // "humidity" or "air_humidity" or "hum"
-  air_humidity:   "air_humidity",   // accept both
-  soil_moisture:  "soil",           // "soil_moisture" or "soil" or "moisture"
-  soil:           "soil",           // accept both
-  moisture:       "soil",           // accept "moisture" too
-  light:          "light",          // "light" or "lux" or "light_intensity"
+  // Clés ESP32 réelles
+  hum_air:        "air_humidity",
+  hum_sol:        "soil",
+  lum:            "light",
+  temp:           "temperature",
+
+  // Clés alternatives
+  temperature:    "temperature",
+  humidity:       "air_humidity",
+  air_humidity:   "air_humidity",
+  soil_moisture:  "soil",
+  soil:           "soil",
+  moisture:       "soil",
+  light:          "light",
   lux:            "light",
-  light_intensity:"light",
   rssi:           "rssi",
   battery:        "battery",
   timestamp:      "timestamp",
