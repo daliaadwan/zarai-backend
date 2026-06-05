@@ -540,9 +540,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login-form');
   if (loginForm) loginForm.addEventListener('submit', doLogin);
 
-  // Start live sensor simulation
+  // Simulation désactivée — données Firebase réelles utilisées
   // simulateLiveSensors();
-
+   
   // Connect to Railway backend
   initRailway();
 
