@@ -353,63 +353,41 @@ async function sendChatMessage() {
   appendChatMsg(msg, 'user');
   input.value = '';
 
-  // Show typing indicator
   const typingEl = appendChatMsg('...', 'ai', true);
 
   try {
     // Get real sensor data
-    let sensorContext = '';
+    let sensorData = {};
     if (window.FB && window.FB.lastData && window.FB.lastData.SOL_01) {
       const raw = window.FB.lastData.SOL_01;
-      sensorContext = `
-Current real sensor data from Field A3 (SOL_01):
-- Temperature: ${raw.temp || raw.temperature || 'N/A'}°C
-- Soil humidity: ${raw.hum_sol || raw.soil || 'N/A'}%
-- Air humidity: ${raw.hum_air || raw.humidity || 'N/A'}%
-- Light: ${raw.lum || raw.light || 'N/A'} klux
-`;
+      sensorData = {
+        temperature:  raw.temp  || raw.temperature,
+        soil:         raw.hum_sol || raw.soil,
+        air_humidity: raw.hum_air || raw.humidity,
+        light:        raw.lum  || raw.light,
+      };
     }
 
-    const langInstruction = {
-      fr: 'Réponds en français.',
-      ar: 'أجب باللغة العربية.',
-      en: 'Reply in English.'
-    }[APP.lang] || 'Reply in English.';
-
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${window.GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are ZARAI, an expert AI agriculture assistant for sunflower field monitoring. Be concise and helpful.
-${sensorContext}
-${langInstruction}
-User question: ${msg}`
-            }]
-          }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 300 }
-        })
-      }
-    );
+    const res = await fetch('https://web-production-9f27d.up.railway.app/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: msg,
+        sensor_data: sensorData,
+        lang: APP.lang
+      })
+    });
 
     const data = await res.json();
-    const reply = data.candidates[0].content.parts[0].text;
-
     typingEl.remove();
-    appendChatMsg(reply, 'ai');
+    appendChatMsg(data.reply, 'ai');
 
   } catch (e) {
     typingEl.remove();
-    // Fallback to random responses
     const responses = AI_RESPONSES[APP.lang] || AI_RESPONSES['en'];
-    const reply = responses[Math.floor(Math.random() * responses.length)];
-    appendChatMsg(reply, 'ai');
+    appendChatMsg(responses[Math.floor(Math.random() * responses.length)], 'ai');
   }
 }
-
   // Simulate typing delay
   const typingEl = appendChatMsg('...', 'ai', true);
   const responses = AI_RESPONSES[APP.lang] || AI_RESPONSES['en'];
@@ -561,8 +539,7 @@ function simulateLiveSensors() {
 document.addEventListener('DOMContentLoaded', () => {
   // Theme
   applyTheme(APP.theme);
-   // Gemini API key for chat
-  window.GEMINI_KEY = "AQ.Ab8RN6KLOr0caUmcXhjHTLPm8CAFhiJlJviMjUpKXpXTscYUrQ"; // ta vraie clé ici
+   
 
 
   // Login page language selector
