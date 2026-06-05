@@ -47,4 +47,4 @@ async def get_sensor_data(node_id: str):
     return r.json()
 
 # Serve frontend
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
