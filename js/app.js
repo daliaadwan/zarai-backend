@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loginForm) loginForm.addEventListener('submit', doLogin);
 
   // Start live sensor simulation
-  simulateLiveSensors();
+  // simulateLiveSensors();
 
   // Connect to Railway backend
   initRailway();
