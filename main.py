@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import httpx
 import os
+import json
 
 app = FastAPI(title="ZARAI Backend")
 
@@ -16,7 +16,7 @@ app.add_middleware(
 )
 
 FIREBASE_URL = os.getenv("FIREBASE_URL", "https://smartsunflower-e2073-default-rtdb.firebaseio.com")
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 class SensorData(BaseModel):
     temperature: float = None
@@ -57,8 +57,8 @@ async def get_sensor_data(node_id: str):
 
 @app.post("/api/ai-analysis")
 async def ai_analysis(data: AIRequest):
-    if not ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=500, detail="API key not configured")
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=500, detail="Gemini API key not configured")
 
     lang_instruction = {
         "fr": "Réponds en français.",
@@ -77,45 +77,40 @@ Current sensor data from field node {data.node_id}:
 {lang_instruction}
 
 Based on these REAL sensor values, provide:
-1. A short status assessment (1 sentence)
+1. A short status assessment
 2. Up to 3 specific actionable recommendations
-3. Any critical alerts if thresholds are exceeded:
+3. Any critical alerts if thresholds exceeded:
    - Soil < 25% = critical irrigation needed
    - Soil < 35% = irrigation soon
    - Temperature > 38°C = heat stress
    - Temperature > 40°C = critical heat
 
-Format your response as JSON only, no markdown:
+Respond ONLY with this JSON, no markdown, no extra text:
 {{
   "status": "ok|warning|critical",
   "summary": "one sentence summary",
-  "alerts": ["alert1", "alert2"],
+  "alerts": ["alert1"],
   "recommendations": ["rec1", "rec2", "rec3"]
 }}"""
 
     async with httpx.AsyncClient() as client:
         r = await client.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json"
-            },
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
+            headers={"Content-Type": "application/json"},
             json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 500,
-                "messages": [{"role": "user", "content": prompt}]
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 500}
             },
             timeout=30
         )
 
     if r.status_code != 200:
-        raise HTTPException(status_code=500, detail="AI request failed")
+        raise HTTPException(status_code=500, detail=f"Gemini error: {r.text}")
 
     result = r.json()
-    text = result["content"][0]["text"]
+    text = result["candidates"][0]["content"]["parts"][0]["text"]
+    text = text.replace("```json", "").replace("```", "").strip()
 
-    import json
     try:
         return json.loads(text)
     except:
