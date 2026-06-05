@@ -388,16 +388,7 @@ async function sendChatMessage() {
     appendChatMsg(responses[Math.floor(Math.random() * responses.length)], 'ai');
   }
 }
-  // Simulate typing delay
-  const typingEl = appendChatMsg('...', 'ai', true);
-  const responses = AI_RESPONSES[APP.lang] || AI_RESPONSES['en'];
-  const reply = responses[Math.floor(Math.random() * responses.length)];
 
-  setTimeout(() => {
-    typingEl.remove();
-    appendChatMsg(reply, 'ai');
-  }, 900 + Math.random() * 600);
-}
 
 function appendChatMsg(text, sender, isTyping = false) {
   const box = document.getElementById('chat-messages');
