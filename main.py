@@ -115,6 +115,54 @@ Respond ONLY with this JSON, no markdown, no extra text:
         return json.loads(text)
     except:
         return {"status": "ok", "summary": text, "alerts": [], "recommendations": []}
+class ChatRequest(BaseModel):
+    message: str
+    sensor_data: dict = {}
+    lang: str = "en"
 
+@app.post("/api/chat")
+async def chat(data: ChatRequest):
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=500, detail="Gemini API key not configured")
+
+    lang_instruction = {
+        "fr": "Réponds en français.",
+        "ar": "أجب باللغة العربية.",
+        "en": "Reply in English."
+    }.get(data.lang, "Reply in English.")
+
+    sensor_context = ""
+    if data.sensor_data:
+        s = data.sensor_data
+        sensor_context = f"""
+Current real sensor data:
+- Temperature: {s.get('temperature', 'N/A')}°C
+- Soil humidity: {s.get('soil', 'N/A')}%
+- Air humidity: {s.get('air_humidity', 'N/A')}%
+- Light: {s.get('light', 'N/A')} klux
+"""
+
+    prompt = f"""You are ZARAI, an expert AI agriculture assistant for sunflower field monitoring. Be concise and helpful.
+{sensor_context}
+{lang_instruction}
+User question: {data.message}"""
+
+    async with httpx.AsyncClient() as client:
+        r = await client.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}",
+            headers={"Content-Type": "application/json"},
+            json={
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.7, "maxOutputTokens": 300}
+            },
+            timeout=30
+        )
+
+    if r.status_code != 200:
+        raise HTTPException(status_code=500, detail=f"Gemini error: {r.text}")
+
+    result = r.json()
+    text = result["candidates"][0]["content"]["parts"][0]["text"]
+    return {"reply": text}
 # Serve frontend
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
