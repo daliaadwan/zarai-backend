@@ -1,0 +1,269 @@
+/* ============================================================
+   ZARAI – Mobile Responsive Stylesheet
+   Covers phones (< 640px), tablets (< 1024px)
+   ============================================================ */
+
+/* ===== TABLET (max 1024px) ===== */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 200px; }
+
+  .stats-grid        { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .dash-grid-31      { grid-template-columns: 1fr; }
+  .dash-grid-2       { grid-template-columns: 1fr; }
+  .dash-grid-3       { grid-template-columns: 1fr 1fr; }
+  .ai-layout         { grid-template-columns: 1fr; }
+  .ai-layout .rec-panel { display: none; } /* hide on tablet, show on phone as tabs */
+}
+
+/* ===== MOBILE (max 768px) ===== */
+@media (max-width: 768px) {
+
+  /* ---- HIDE DESKTOP SIDEBAR ---- */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    transform: translateX(-100%);
+    z-index: 500;
+    width: 260px !important;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  /* Overlay when sidebar open */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 499;
+    backdrop-filter: blur(2px);
+  }
+  .sidebar-overlay.show { display: block; }
+
+  /* ---- MAIN CONTENT FULL WIDTH ---- */
+  .main-content { margin-left: 0 !important; }
+
+  /* ---- TOPBAR MOBILE ---- */
+  .topbar {
+    padding: 0 14px;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-title { font-size: 0.92rem; }
+  .topbar-title .greeting-text { display: none; } /* hide "Good morning" on small screens */
+  .topbar-right { gap: 6px; }
+  .lang-select { display: none; } /* move to settings on mobile */
+
+  /* Hamburger menu button */
+  .btn-hamburger {
+    width: 36px; height: 36px;
+    background: var(--beige);
+    border: 1.5px solid var(--beige-dark);
+    border-radius: var(--radius-sm);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-mid);
+    flex-shrink: 0;
+  }
+  .btn-hamburger svg { width: 18px; height: 18px; }
+
+  /* ---- PAGE VIEWS ---- */
+  .page-view { padding: 14px 14px 90px; } /* bottom padding for mobile nav */
+
+  /* ---- BOTTOM NAV BAR (mobile only) ---- */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--white);
+    border-top: 1.5px solid var(--beige-dark);
+    height: 64px;
+    z-index: 300;
+    padding: 0 8px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  }
+  [data-theme="dark"] .mobile-bottom-nav {
+    background: #0d1a10;
+    border-top-color: rgba(46,204,113,0.15);
+  }
+  .mob-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.2s;
+    padding: 6px 4px;
+    position: relative;
+  }
+  .mob-nav-item:hover,
+  .mob-nav-item.active {
+    background: rgba(46,204,113,0.1);
+  }
+  .mob-nav-item svg {
+    width: 22px; height: 22px;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+  .mob-nav-item.active svg { color: var(--green-mid); }
+  .mob-nav-item span {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+  .mob-nav-item.active span { color: var(--green-mid); }
+  .mob-nav-badge {
+    position: absolute;
+    top: 4px; right: calc(50% - 18px);
+    width: 16px; height: 16px;
+    background: var(--red);
+    border-radius: 50%;
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--white);
+  }
+
+  /* ---- STATS GRID ---- */
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+  .stat-card { padding: 14px; border-radius: 14px; }
+  .stat-value { font-size: 1.45rem; }
+  .stat-icon  { width: 34px; height: 34px; font-size: 1rem; margin-bottom: 8px; }
+
+  /* ---- FIELD PHOTO STRIP → horizontal scroll ---- */
+  .field-photo-strip {
+    display: flex !important;
+    gap: 12px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .field-photo-strip::-webkit-scrollbar { display: none; }
+  .field-photo-card {
+    min-width: 200px;
+    flex-shrink: 0;
+    height: 150px;
+    border-radius: 14px;
+  }
+
+  /* ---- SENSOR LIST ---- */
+  .sensor-row { padding: 10px 12px; }
+  .sensor-bar-wrap { display: none; } /* hide bar on mobile to save space */
+
+  /* ---- CHART ---- */
+  #trend-chart { height: 180px !important; }
+
+  /* ---- WEATHER STRIP ---- */
+  .wday { min-width: 58px; padding: 8px 6px; }
+  .wday-icon { font-size: 1.1rem; }
+  .wday-temp { font-size: 0.82rem; }
+
+  /* ---- ALERT CARDS ---- */
+  .alert-full-card { padding: 14px 14px; gap: 10px; flex-wrap: wrap; }
+  .alert-side { flex-direction: row; min-width: 100%; justify-content: flex-start; gap: 8px; }
+  .alert-full-icon { font-size: 1.6rem; min-width: 36px; }
+
+  /* ---- AI PAGE ---- */
+  .ai-layout { display: flex !important; flex-direction: column; height: auto; gap: 14px; }
+  .chat-wrap { height: 65vh; }
+  .ai-rec-panel-mobile { display: block !important; }
+
+  /* ---- MAP PAGE ---- */
+  .map-overlay-panel {
+    top: auto !important;
+    bottom: 74px !important; /* above mobile nav */
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .map-layer-bar { top: 10px; left: 10px; }
+  .map-layer-btn { padding: 5px 10px; font-size: 0.72rem; }
+
+  /* ---- SETTINGS ---- */
+  .settings-section { padding: 16px; }
+  .setting-row { flex-wrap: wrap; gap: 10px; }
+
+  /* ---- CARDS ---- */
+  .card { border-radius: 14px; padding: 14px; }
+  .dash-grid-31,
+  .dash-grid-2,
+  .dash-grid-3 { grid-template-columns: 1fr !important; gap: 14px; }
+
+  /* ---- LOGIN PAGE ---- */
+  .login-card {
+    padding: 36px 24px 28px;
+    border-radius: 22px;
+    margin: 14px;
+  }
+  .login-logo-name { font-size: 2.4rem; }
+  .login-lang-bar { top: 14px; right: 14px; }
+
+  /* ---- SUMMARY ROW on alerts ---- */
+  .summary-row { grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .summary-row .card { padding: 12px 8px; }
+  .summary-row .sc-num { font-size: 1.6rem !important; }
+
+  /* ---- TOPBAR TITLE ---- */
+  .topbar-page-title { font-size: 0.95rem; }
+}
+
+/* ===== SMALL PHONES (max 400px) ===== */
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-value { font-size: 1.3rem; }
+  .field-photo-card { min-width: 170px; height: 130px; }
+  .page-view { padding: 12px 12px 88px; }
+  .login-card { padding: 28px 18px 24px; margin: 10px; }
+  .login-logo-name { font-size: 2.1rem; letter-spacing: 3px; }
+}
+
+/* ===== ALWAYS HIDDEN ON DESKTOP ===== */
+@media (min-width: 769px) {
+  .mobile-bottom-nav { display: none !important; }
+  .sidebar-overlay   { display: none !important; }
+  .btn-hamburger     { display: none !important; }
+}
+
+/* ===== TOUCH IMPROVEMENTS ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* Bigger tap targets */
+  .nav-item      { padding: 13px 12px; }
+  .btn           { min-height: 44px; }
+  .btn-icon      { width: 44px; height: 44px; }
+  .time-tab      { padding: 8px 14px; }
+  .field-chip    { padding: 8px 16px; }
+  .map-layer-btn { padding: 9px 16px; }
+  .chat-send-btn { width: 46px; height: 46px; }
+
+  /* Remove hover effects that look wrong on touch */
+  .card:hover        { transform: none; }
+  .stat-card:hover   { transform: none; }
+  .nav-item:hover    { transform: none; }
+  .alert-row:hover   { transform: none; }
+}
+
+/* ===== PWA SAFE AREA (iPhone notch) ===== */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(64px + env(safe-area-inset-bottom));
+  }
+  .page-view {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  }
+}
