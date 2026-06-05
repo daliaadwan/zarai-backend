@@ -1,18 +1,10 @@
-/* ============================================================
-   ZARAI – Railway Backend Connector
-   URL: https://web-production-9f27d.up.railway.app
-   ============================================================ */
-
 'use strict';
 
 const RAILWAY_URL = "https://web-production-9f27d.up.railway.app/api";
 
-/* ============================================================
-   CHECK IF BACKEND IS ALIVE
-   ============================================================ */
 async function checkRailwayStatus() {
   try {
-    const res = await fetch(`${RAILWAY_URL}/`);
+    const res = await fetch(`${RAILWAY_URL}`);
     const data = await res.json();
     console.log('[Railway] ✅ Backend online:', data.status);
     return true;
@@ -22,58 +14,81 @@ async function checkRailwayStatus() {
   }
 }
 
-/* ============================================================
-   SEND SENSOR DATA TO BACKEND → FIREBASE
-   Called by ESP32 or Raspberry Pi
-   ============================================================ */
-async function sendSensorData(nodeId, sensorData) {
+async function analyzeWithAI(sensorData) {
   try {
-    const res = await fetch(`${RAILWAY_URL}/sensors`, {
+    const res = await fetch(`${RAILWAY_URL}/ai-analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...sensorData, node_id: nodeId }),
+      body: JSON.stringify({
+        temperature: sensorData.temperature,
+        soil:        sensorData.soil,
+        air_humidity:sensorData.air_humidity,
+        light:       sensorData.light,
+        node_id:     sensorData.node_id || 'SOL_01',
+        lang:        window.APP ? window.APP.lang : 'en'
+      })
     });
-    const data = await res.json();
-    console.log('[Railway] ✅ Data sent:', data);
-    showToast('📡 Data sent to backend', 'ok', 2000);
-    return data;
+    const result = await res.json();
+    console.log('[ZARAI AI] 🤖 Analysis:', result);
+    handleAIResult(result);
+    return result;
   } catch (e) {
-    console.error('[Railway] ❌ Send failed:', e.message);
-    showToast('Backend unreachable — using Firebase directly', 'warn', 3000);
+    console.error('[ZARAI AI] ❌ Failed:', e.message);
     return null;
   }
 }
 
-/* ============================================================
-   GET LATEST SENSOR DATA FROM BACKEND
-   ============================================================ */
-async function getLatestData(nodeId = 'SOL_01') {
-  try {
-    const res = await fetch(`${RAILWAY_URL}/sensors/${nodeId}`);
-    const data = await res.json();
-    console.log(`[Railway] 📥 Latest data for ${nodeId}:`, data);
-    return data;
-  } catch (e) {
-    console.error('[Railway] ❌ Fetch failed:', e.message);
-    return null;
+function handleAIResult(result) {
+  if (!result) return;
+
+  // Show alerts
+  if (result.alerts && result.alerts.length > 0) {
+    result.alerts.forEach(alert => {
+      showToast(`🔴 ${alert}`, 'error', 8000);
+      addLiveAlert({ type: 'critical', field: 'A3', message: alert });
+    });
+  }
+
+  // Show summary toast
+  if (result.summary) {
+    const icon = result.status === 'critical' ? '🔴' : result.status === 'warning' ? '🟠' : '✅';
+    showToast(`${icon} ${result.summary}`, result.status === 'ok' ? 'ok' : 'warn', 6000);
+  }
+
+  // Update AI chat if open
+  const chatBox = document.getElementById('chat-messages');
+  if (chatBox) {
+    const recs = result.recommendations || [];
+    const msg = `🤖 **AI Analysis**\n${result.summary}\n\n${recs.map(r => '• ' + r).join('\n')}`;
+    appendChatMsg(msg, 'ai');
   }
 }
 
-/* ============================================================
-   INIT — check backend on app load
-   ============================================================ */
 async function initRailway() {
   const online = await checkRailwayStatus();
   if (online) {
-    showToast('🚀 Railway backend connected', 'ok', 3000);
+    console.log('[Railway] ✅ Connected');
   }
 }
 
-/* ============================================================
-   EXPOSE GLOBALLY
-   ============================================================ */
-window.RAILWAY_URL       = RAILWAY_URL;
-window.initRailway       = initRailway;
-window.sendSensorData    = sendSensorData;
-window.getLatestData     = getLatestData;
+// Auto-analyze every 5 minutes with real sensor data
+function startAutoAnalysis() {
+  setInterval(async () => {
+    if (window.FB && window.FB.lastData && window.FB.lastData.SOL_01) {
+      const raw = window.FB.lastData.SOL_01;
+      await analyzeWithAI({
+        temperature:  raw.temp  || raw.temperature,
+        soil:         raw.hum_sol || raw.soil_moisture || raw.soil,
+        air_humidity: raw.hum_air || raw.humidity || raw.air_humidity,
+        light:        raw.lum  || raw.light,
+        node_id:      'SOL_01'
+      });
+    }
+  }, 5 * 60 * 1000); // every 5 minutes
+}
+
+window.RAILWAY_URL      = RAILWAY_URL;
+window.initRailway      = initRailway;
+window.analyzeWithAI    = analyzeWithAI;
+window.startAutoAnalysis = startAutoAnalysis;
 window.checkRailwayStatus = checkRailwayStatus;
