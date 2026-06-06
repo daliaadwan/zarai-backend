@@ -379,8 +379,13 @@ async function sendChatMessage() {
     });
 
     const data = await res.json();
-    typingEl.remove();
-    appendChatMsg(data.reply, 'ai');
+typingEl.remove();
+if (data.reply) {
+  appendChatMsg(data.reply, 'ai');
+} else {
+  const responses = AI_RESPONSES[APP.lang] || AI_RESPONSES['en'];
+  appendChatMsg(responses[Math.floor(Math.random() * responses.length)], 'ai');
+}
 
   } catch (e) {
     typingEl.remove();
