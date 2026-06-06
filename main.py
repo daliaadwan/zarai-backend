@@ -1,3 +1,4 @@
+# ZARAI Backend v2 - Gemini AI enabled
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
