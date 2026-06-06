@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 FIREBASE_URL = os.getenv("FIREBASE_URL", "https://smartsunflower-e2073-default-rtdb.firebaseio.com")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBTj9S0Ge3b5TMIYK-nJ973oJj-AMGZaC8")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyCpG3nfuE11ec18WKUkDpsWUeJBqvULMf4")
 
 class SensorData(BaseModel):
     temperature: float = None
